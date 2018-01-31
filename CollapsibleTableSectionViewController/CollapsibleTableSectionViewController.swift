@@ -18,6 +18,7 @@ import UIKit
     @objc optional func collapsibleTableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat
     @objc optional func collapsibleTableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat
     @objc optional func collapsibleTableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String?
+    @objc optional func collapsibleTableView(_ tableView: UITableView, modifyHeaderForSection header: CollapsibleTableViewHeader) -> CollapsibleTableViewHeader?
     @objc optional func collapsibleTableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath)
     @objc optional func shouldCollapseByDefault(_ tableView: UITableView) -> Bool
     @objc optional func shouldCollapseOthers(_ tableView: UITableView) -> Bool
@@ -118,10 +119,13 @@ extension CollapsibleTableSectionViewController: UITableViewDataSource, UITableV
     
     // Header
     public func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "header") as? CollapsibleTableViewHeader ?? CollapsibleTableViewHeader(reuseIdentifier: "header")
+        var header = tableView.dequeueReusableHeaderFooterView(withIdentifier: "header") as? CollapsibleTableViewHeader ?? CollapsibleTableViewHeader(reuseIdentifier: "header")
         
         let title = delegate?.collapsibleTableView?(tableView, titleForHeaderInSection: section) ?? ""
-        
+        if let custom_header = delegate?.collapsibleTableView?(tableView, modifyHeaderForSection: header){
+            header = custom_header
+            header.arrowLabel.isHidden = true
+        }
         header.titleLabel.text = title
         header.arrowLabel.text = ">"
         header.setCollapsed(isSectionCollapsed(section))
